@@ -1,0 +1,9 @@
+wrapAsync : wrapAsync is the better way to write try and catch. it is basically used to handle error.
+          : It avoid from server crashed. it handle error more effectively.
+
+syntax:
+    (fn)=>{
+        return (req,res,next)=>{
+            promise.resolve(fun(req,res,next)).catch(err=>next(err));
+        }
+    }

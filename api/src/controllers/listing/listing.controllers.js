@@ -2,12 +2,26 @@ import { sampleListings } from "../../../../data.js";
 import { Listing } from "../../models/listing/listing.models.js";
 import { ApiError } from "../../utilities/ApiError.js";
 import { ApiResponse } from "../../utilities/ApiResponse.js";
+import { asyncHandler } from "../../utilities/AsyncHandler.js";
+import { listingSchemaValidator } from "../../validators/schemaValidators.js";
 
 // creating new Listing :
-const createListing = async (req, res) => {
+const createListing = asyncHandler(async (req, res) => {
   try {
     if (req.body) {
-      const newListing = new Listing(req.body);
+      let validate_res = listingSchemaValidator.validate(req.body);
+      console.log(validate_res);
+      if (validate_res.error) {
+        res.send(
+          new ApiError(
+            400,
+            validate_res.error.details[0].message ||
+              "Data is not valid. please! send correct data.",
+            validate_res.error
+          )
+        );
+      }
+      const newListing = new Listing(validate_res.value);
       const result = await newListing.save();
       return res
         .status(201)
@@ -20,16 +34,16 @@ const createListing = async (req, res) => {
         );
     }
   } catch (err) {
-    console.error(err);
+    console.error(err.errors?.properties);
     return res.status(500).json({
       status: 500,
       message: err.message == "" ? "Internal Server Error😣" : err.message,
     });
   }
-};
+});
 
 // getting all listing:
-const listingAll = async (req, res) => {
+const listingAll = asyncHandler(async (req, res) => {
   try {
     const result = await Listing.find();
     return res
@@ -49,10 +63,10 @@ const listingAll = async (req, res) => {
         )
       );
   }
-};
+});
 
 // getting listing by id:
-const getByIdListing = async (req, res) => {
+const getByIdListing = asyncHandler(async (req, res) => {
   try {
     console.log("req id : ", req.params.id);
     const result = await Listing.findOne({ _id: req.params.id });
@@ -82,11 +96,26 @@ const getByIdListing = async (req, res) => {
         )
       );
   }
-};
+});
 // Editing listing by id:
-const editByIdListing = async (req, res) => {
+const editByIdListing = asyncHandler(async (req, res) => {
   try {
-    const result = await Listing.findByIdAndUpdate(req.params.id, req.body);
+    let validate_res = listingSchemaValidator.validate(req.body);
+    console.log(validate_res);
+    if (validate_res.error) {
+      res.send(
+        new ApiError(
+          400,
+          validate_res.error.details[0].message ||
+            "Data is not valid. please! send correct data.",
+          validate_res.error
+        )
+      );
+    }
+    const result = await Listing.findByIdAndUpdate(
+      req.params.id,
+      validate_res.value
+    );
     if (result === null) {
       throw new Error("Listing Item update Failed!");
     }
@@ -107,9 +136,9 @@ const editByIdListing = async (req, res) => {
         )
       );
   }
-};
+});
 // Deleting listing by id:
-const deleteByIdListing = async (req, res) => {
+const deleteByIdListing = asyncHandler(async (req, res) => {
   try {
     const result = await Listing.findByIdAndDelete(req.params.id, req.body);
     if (result === null) {
@@ -130,12 +159,12 @@ const deleteByIdListing = async (req, res) => {
         )
       );
   }
-};
+});
 
-const initListingDB = async (req, res) => {
+const initListingDB = asyncHandler(async (req, res) => {
   await Listing.insertMany(sampleListings);
   return res.status(200).send("Listings initialized successfully");
-};
+});
 
 export {
   listingAll,
