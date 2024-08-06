@@ -2,26 +2,13 @@ import { sampleListings } from "../../../../data.js";
 import { Listing } from "../../models/listing/listing.models.js";
 import { ApiError } from "../../utilities/ApiError.js";
 import { ApiResponse } from "../../utilities/ApiResponse.js";
-import { asyncHandler } from "../../utilities/AsyncHandler.js";
-import { listingSchemaValidator } from "../../validators/schemaValidators.js";
+import { asyncHandler } from "../../utilities/asyncHandler.js";
 
 // creating new Listing :
 const createListing = asyncHandler(async (req, res) => {
   try {
     if (req.body) {
-      let validate_res = listingSchemaValidator.validate(req.body);
-      console.log(validate_res);
-      if (validate_res.error) {
-        res.send(
-          new ApiError(
-            400,
-            validate_res.error.details[0].message ||
-              "Data is not valid. please! send correct data.",
-            validate_res.error
-          )
-        );
-      }
-      const newListing = new Listing(validate_res.value);
+      const newListing = new Listing(req.body);
       const result = await newListing.save();
       return res
         .status(201)
@@ -100,22 +87,7 @@ const getByIdListing = asyncHandler(async (req, res) => {
 // Editing listing by id:
 const editByIdListing = asyncHandler(async (req, res) => {
   try {
-    let validate_res = listingSchemaValidator.validate(req.body);
-    console.log(validate_res);
-    if (validate_res.error) {
-      res.send(
-        new ApiError(
-          400,
-          validate_res.error.details[0].message ||
-            "Data is not valid. please! send correct data.",
-          validate_res.error
-        )
-      );
-    }
-    const result = await Listing.findByIdAndUpdate(
-      req.params.id,
-      validate_res.value
-    );
+    const result = await Listing.findByIdAndUpdate(req.params.id, req.body);
     if (result === null) {
       throw new Error("Listing Item update Failed!");
     }
@@ -140,7 +112,7 @@ const editByIdListing = asyncHandler(async (req, res) => {
 // Deleting listing by id:
 const deleteByIdListing = asyncHandler(async (req, res) => {
   try {
-    const result = await Listing.findByIdAndDelete(req.params.id, req.body);
+    const result = await Listing.findByIdAndDelete(req.params.id);
     if (result === null) {
       throw new Error("Listing Item Deletion Failed😢😢😈👹");
     }
@@ -162,6 +134,7 @@ const deleteByIdListing = asyncHandler(async (req, res) => {
 });
 
 const initListingDB = asyncHandler(async (req, res) => {
+  await Listing.deleteMany({});
   await Listing.insertMany(sampleListings);
   return res.status(200).send("Listings initialized successfully");
 });

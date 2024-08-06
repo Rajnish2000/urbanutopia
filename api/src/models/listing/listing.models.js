@@ -10,8 +10,12 @@ const listingSchema = new Schema({
   },
   image: {
     type: {
+      _id: false,
       url: String,
       filename: String,
+      listImg: [],
+      // set: (v) =>
+      //   listImg.find(v) == -1 ? listImg.push(v) : (listImg = listImg),
     },
     default: { url: "https://via.placeholder.com/250x250.png", filename: "" },
   },
@@ -25,6 +29,12 @@ const listingSchema = new Schema({
   country: {
     type: String,
   },
+  reviews: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Review",
+    },
+  ],
 });
 
 const Listing = mongoose.model("Listing", listingSchema);

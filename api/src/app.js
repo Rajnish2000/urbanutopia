@@ -1,7 +1,7 @@
 import express from "express";
 import { createServer } from "http";
 import ListingRouter from "./routes/listing/listing.routes.js";
-
+import userRouter from "./routes/auth/users.routes.js";
 const app = express();
 
 const httpServer = createServer(app);
@@ -21,5 +21,6 @@ app.use((req, res, next) => {
 
 // routes:
 app.use("/api/v1/listing", ListingRouter);
+app.use("/api/v1/user", userRouter);
 
 export { httpServer };
