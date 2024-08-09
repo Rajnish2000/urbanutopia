@@ -1,5 +1,5 @@
 node_modules
-api/public/images/*
+# api/public/images/*
 
 .env
 package-lock.json
