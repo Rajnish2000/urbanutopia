@@ -12,4 +12,14 @@ const listingSchemaValidator = Joi.object({
   country: Joi.string().required(),
 });
 
-export { listingSchemaValidator };
+const userSchemaValidator = Joi.object({
+  name: Joi.string().default(null),
+  username: Joi.string().required(),
+  email: Joi.string().required(),
+  password: Joi.string().required(),
+  dob: Joi.date().default(null),
+  mobile_no: Joi.string().default(null),
+  listings: Joi.array(),
+});
+
+export { listingSchemaValidator, userSchemaValidator };

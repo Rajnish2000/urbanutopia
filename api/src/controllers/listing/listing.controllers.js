@@ -32,6 +32,10 @@ const createListing = asyncHandler(async (req, res) => {
 // getting all listing:
 const listingAll = asyncHandler(async (req, res) => {
   try {
+    // let { username } = req.cookies;
+    // let username = req.signedCookies;
+    // console.log("cookies : ", username);
+    // console.log("session", req.session);
     const result = await Listing.find();
     return res
       .status(200)

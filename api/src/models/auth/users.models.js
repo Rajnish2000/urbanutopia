@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-
+import passportLocalMongoose from "passport-local-mongoose";
 const userSchema = new Schema(
   {
     name: {
@@ -21,9 +21,6 @@ const userSchema = new Schema(
     mobile_no: {
       type: String,
     },
-    password: {
-      type: String,
-    },
     listings: [
       {
         type: Schema.Types.ObjectId,
@@ -33,6 +30,8 @@ const userSchema = new Schema(
   },
   { timestamps: true }
 );
+
+userSchema.plugin(passportLocalMongoose);
 
 const User = mongoose.model("User", userSchema);
 

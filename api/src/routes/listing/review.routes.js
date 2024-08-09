@@ -4,7 +4,7 @@ import {
   deleteReviewById,
   getallReviewOfListing,
   updateReviewById,
-} from "../../controllers/listing/review.controllers";
+} from "../../controllers/listing/review.controllers.js";
 
 const router = Router();
 

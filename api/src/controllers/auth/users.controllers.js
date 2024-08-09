@@ -1,4 +1,4 @@
-import User from "../../models/auth/users.models.js";
+import { User } from "../../models/auth/users.models.js";
 import { ApiError } from "../../utilities/ApiError.js";
 import { ApiResponse } from "../../utilities/ApiResponse.js";
 import { asyncHandler } from "../../utilities/asyncHandler.js";
@@ -11,12 +11,17 @@ const createUser = asyncHandler(async (req, res) => {
         .status(400)
         .json(new ApiError(400, "Please send details.something went wrong."));
     }
+    const password = req.body.password;
     const user = new User(req.body);
-    const result = await user.save();
+    // const result = await user.save();
+    const result = await User.register(user, password);
+    console.log(result);
     if (!result) {
       return res
         .status(400)
-        .json(new ApiError(400, "user not created.something went wrong."));
+        .json(
+          new ApiError(400, "user not created.something went wrong.", result)
+        );
     }
     return res
       .status(200)
@@ -25,7 +30,7 @@ const createUser = asyncHandler(async (req, res) => {
     console.log(err);
     return res
       .status(400)
-      .json(new ApiError(400, "User Creation Failed. try again.❌🤦‍♀️😣"));
+      .json(new ApiError(400, "User Creation Failed. try again.❌🤦‍♀️😣", err));
   }
 });
 
@@ -111,4 +116,36 @@ const deleteUserById = asyncHandler(async (req, res) => {
   }
 });
 
-export { createUser, getUserById, updateUserById, deleteUserById };
+const login = (req, res) => {
+  const result = req.user;
+  if (!result) {
+    return res
+      .status(400)
+      .json(
+        new ApiError(400, "User Credential Failed. Please login.�������‍��️")
+      );
+  }
+  return res
+    .status(200)
+    .json(new ApiResponse(200, result, "User login Successfully.😍✔👻✔🤞"));
+};
+
+const logout = (req, res) => {
+  return req.logout((err) => {
+    if (err) return next(err);
+    else {
+      return res
+        .status(200)
+        .json(new ApiResponse(200, null, "User Logout Successfully.🤗😀✈"));
+    }
+  });
+};
+
+export {
+  createUser,
+  getUserById,
+  updateUserById,
+  deleteUserById,
+  login,
+  logout,
+};

@@ -1,4 +1,4 @@
-import { Listing } from "../../models/listing/listing.models";
+import { Listing } from "../../models/listing/listing.models.js";
 import { ApiError } from "../../utilities/ApiError.js";
 import { ApiResponse } from "../../utilities/ApiResponse.js";
 import { Review } from "../../models/listing/review.models.js";
