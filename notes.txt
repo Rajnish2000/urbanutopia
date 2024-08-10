@@ -14,3 +14,10 @@ passport :
     1: npm i passport 
     2: npm i passport-local
     3: npm i passport-local-mongoose
+
+
+store on local system:"
+      npm i multer
+
+multer Store cloudinary:
+     installation: npm i cloudinary multer-storage-cloudinary

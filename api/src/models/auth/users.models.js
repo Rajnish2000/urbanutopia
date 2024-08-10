@@ -15,6 +15,17 @@ const userSchema = new Schema(
       required: true,
       unique: true,
     },
+    image: {
+      type: {
+        _id: false,
+        url: String,
+        filename: String,
+      },
+      default: {
+        url: "https://via.placeholder.com/250x250.png",
+        filename: "myprofile",
+      },
+    },
     dob: {
       type: Date,
     },

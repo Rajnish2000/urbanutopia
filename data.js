@@ -1,4 +1,4 @@
-const sampleListings = [
+export default [
   {
     title: "Cozy Beachfront Cottage",
     description:
@@ -349,4 +349,4 @@ const sampleListings = [
   },
 ];
 
-export { sampleListings };
+// export { sampleListings };

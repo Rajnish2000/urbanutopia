@@ -2,6 +2,7 @@ import {
   listingSchemaValidator,
   userSchemaValidator,
 } from "../validators/schemaValidators.js";
+import { ApiError } from "../utilities/ApiError.js";
 
 const validateListing = (req, res, next) => {
   let validate_res = listingSchemaValidator.validate(req.body);

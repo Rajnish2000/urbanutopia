@@ -61,27 +61,49 @@ const getUserById = asyncHandler(async (req, res) => {
 const updateUserById = asyncHandler(async (req, res) => {
   try {
     let uid = req.params.id;
-    if (!req.body) {
+    if (req.user._id === uid) {
+      if (!req.body) {
+        return res
+          .status(400)
+          .json(
+            new ApiError(400, "Please send data to update. Try again.❌😈🤦‍♂️")
+          );
+      }
+      let result = await User.findByIdAndUpdate(uid, req.body);
+      if (req.file) {
+        console.log("req.file: ", req.file);
+        result.image.url = req.file.path;
+        result.image.filename = req.file.filename;
+        result = await result.save();
+      }
+      if (!result) {
+        return res
+          .status(400)
+          .json(
+            new ApiError(
+              400,
+              "user not Updated.something went wrong.try Again.🤦‍♂️😣👹"
+            )
+          );
+      }
       return res
-        .status(400)
+        .status(200)
         .json(
-          new ApiError(400, "Please send data to update. Try again.❌😈🤦‍♂️")
+          new ApiResponse(200, result, "User Updated Successfully.😍✔👻✔🤞")
         );
-    }
-    const result = await User.findByIdAndUpdate(uid, req.body);
-    if (!result) {
+    } else {
       return res
-        .status(400)
+        .status(401)
         .json(
           new ApiError(
-            400,
-            "user not Updated.something went wrong.try Again.🤦‍♂️😣👹"
+            401,
+            err.message == ""
+              ? "You are not authorized to update this profile.😣"
+              : "Unauthorized Access Failed.😣❌😈",
+            err
           )
         );
     }
-    return res
-      .status(200)
-      .json(new ApiResponse(200, result, "User Updated Successfully.😍✔👻✔🤞"));
   } catch (err) {
     console.log(err);
     return res
@@ -94,20 +116,36 @@ const updateUserById = asyncHandler(async (req, res) => {
 const deleteUserById = asyncHandler(async (req, res) => {
   try {
     let uid = req.params.id;
-    const result = await User.findByIdAndDelete(uid);
-    if (!result) {
+    if (req.user._id === uid) {
+      const result = await User.findByIdAndDelete(uid);
+      if (!result) {
+        return res
+          .status(400)
+          .json(
+            new ApiError(
+              400,
+              "user not deleted.something went wrong.try again.😈🤦‍♂️❌"
+            )
+          );
+      }
       return res
-        .status(400)
+        .status(200)
+        .json(
+          new ApiResponse(200, result, "User Deleted Successfully.😍✔👻✔🤞")
+        );
+    } else {
+      return res
+        .status(401)
         .json(
           new ApiError(
-            400,
-            "user not deleted.something went wrong.try again.😈🤦‍♂️❌"
+            401,
+            err.message == ""
+              ? "You are not authorized to delete this Account.😣"
+              : "Unauthorized Access Failed.😣❌😈",
+            err
           )
         );
     }
-    return res
-      .status(200)
-      .json(new ApiResponse(200, result, "User Deleted Successfully.😍✔👻✔🤞"));
   } catch (err) {
     console.log(err);
     return res

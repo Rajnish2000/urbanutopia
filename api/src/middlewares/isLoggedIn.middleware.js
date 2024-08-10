@@ -1,6 +1,5 @@
-import passport from "passport";
 import { ApiError } from "../utilities/ApiError.js";
-const Auth = (req, res, next) => {
+const isLoggedIn = (req, res, next) => {
   try {
     console.log("user: ", req.user);
     if (req.isAuthenticated()) return next();
@@ -13,4 +12,4 @@ const Auth = (req, res, next) => {
   }
 };
 
-export { Auth };
+export { isLoggedIn };

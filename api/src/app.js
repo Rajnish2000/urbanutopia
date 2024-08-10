@@ -31,7 +31,7 @@ app.use(session(sessionInfo));
 
 // body parser: to parse body data passes through request.
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extends: true }));
 
 // passport setup:
 app.use(passport.initialize()); // initializing the passport.

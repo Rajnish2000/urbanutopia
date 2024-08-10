@@ -13,6 +13,7 @@ const createReview = asyncHandler(async (req, res) => {
       return res.status(400).json(new ApiError(400, "Data Not Found"));
     }
     const review = new Review(req.body);
+    review.owner = req.user._id;
     listing.reviews.push(review);
     await listing.save();
     const result = await review.save();
@@ -41,19 +42,41 @@ const getallReviewOfListing = asyncHandler(async (req, res) => {
 const updateReviewById = asyncHandler(async (req, res) => {
   try {
     const { id, rid } = req.params;
-    if (!req.body) {
-      return res.status(400).json(new ApiError(400, "Data Not Found.👻👹🎈"));
-    }
-    const result = await Review.findByIdAndUpdate(rid, req.body);
-    if (!result) {
+    let review = await Review.findById(rid);
+    if (!review)
       return res
-        .status(404)
-        .json(new ApiError(404, "Review Not Updated.�������"));
+        .status(400)
+        .json(new ApiError(400, "Data Not Found.👻👹🎈", "No Review Found.."));
+    if (req.user._id === review.owner._id) {
+      if (!req.body) {
+        return res.status(400).json(new ApiError(400, "Data Not Found.👻👹🎈"));
+      }
+      const result = await Review.findByIdAndUpdate(rid, req.body);
+      // let listing = await Listing.findOneAndReplace({$where:});
+      // listing.reviews =
+      if (!result) {
+        return res
+          .status(404)
+          .json(new ApiError(404, "Review Not Updated.�������"));
+      }
+      return res
+        .status(201)
+        .json(
+          new ApiResponse(201, result, "Review Updated Successfully.😍✔👻")
+        );
+    } else {
+      return res
+        .status(401)
+        .json(
+          new ApiError(
+            401,
+            err.message == ""
+              ? "You are not authorized to update this review.😣"
+              : "Unauthorized Access Failed.😣❌😈",
+            err
+          )
+        );
     }
-    //   Listing.findByIdAndUpdate(lisId,)
-    return res
-      .status(201)
-      .json(new ApiResponse(201, result, "Review Updated Successfully.😍✔👻"));
   } catch (err) {
     return res
       .status(500)
@@ -66,20 +89,41 @@ const deleteReviewById = asyncHandler(async (req, res) => {
   try {
     const lisId = req.params.id;
     const rId = req.params.rid;
-    const lisResult = await Listing.findOneAndDelete({
-      $where: (reviews._id = rId),
-    });
-    const result = await Review.findByIdAndDelete(rId);
-    if (!result) {
+    let review = await Review.findById(rId);
+    if (!review)
       return res
         .status(400)
+        .json(new ApiError(400, "Data Not Found.👻👹🎈", "No Review Found.."));
+    if (req.user._id === review.owner._id) {
+      const lisResult = await Listing.findOneAndDelete({
+        $where: (reviews._id = rId),
+      });
+      const result = await Review.findByIdAndDelete(rId);
+      if (!result) {
+        return res
+          .status(400)
+          .json(
+            new ApiError(400, "Review Deletion Failed. Something went wrong.")
+          );
+      }
+      return res
+        .status(200)
         .json(
-          new ApiError(400, "Review Deletion Failed. Something went wrong.")
+          new ApiResponse(200, result, "Review Deleted Successfully.👻👻😜")
+        );
+    } else {
+      return res
+        .status(401)
+        .json(
+          new ApiError(
+            401,
+            err.message == ""
+              ? "You are not authorized to Delete this review.😣"
+              : "Unauthorized Access Failed.😣❌😈",
+            err
+          )
         );
     }
-    return res
-      .status(200)
-      .json(new ApiResponse(200, result, "Review Deleted Successfully.👻👻😜"));
   } catch (err) {
     return res
       .status(500)

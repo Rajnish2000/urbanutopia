@@ -10,6 +10,7 @@ const listingSchemaValidator = Joi.object({
   price: Joi.number().min(0).required(),
   location: Joi.string().required(),
   country: Joi.string().required(),
+  geometry: Joi.object(),
 });
 
 const userSchemaValidator = Joi.object({
