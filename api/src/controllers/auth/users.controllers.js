@@ -116,10 +116,7 @@ const deleteUserById = asyncHandler(async (req, res) => {
   try {
     let uid = req.params.id;
     if (req.user._id.valueOf() === uid) {
-      let reviews = await Review.find({ owner: req.user });
-      reviews.forEach(async (review) => {
-        await Review.findByIdAndDelete(review._id);
-      });
+      let reviews = await Review.deleteMany({ owner: req.user });
       req.user.listings.forEach(async (item) => {
         await item.reviews.forEach(async (review) => {
           await Review.findByIdAndDelete(review._id);

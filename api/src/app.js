@@ -7,21 +7,32 @@ import session from "express-session";
 import passport from "passport";
 import { Strategy } from "passport-local";
 import { User } from "./models/auth/users.models.js";
-import reviewRouter from "./routes/listing/review.routes.js";
+import MongoStore from "connect-mongo";
 const app = express();
+
+const db_url = process.env.ATLAS_DB_URL;
 
 const httpServer = createServer(app);
 
 // cookie parser:
 // app.use(cookieParser("secret"));
 
+const store = MongoStore.create({
+  mongoUrl: db_url,
+  touchAfter: 24 * 3600,
+  crypto: {
+    secret: "secreatecodedinfo",
+  },
+});
+
 const sessionInfo = {
+  store,
   secret: "Mysecretxyzcodek",
   resave: false,
   saveUninitialized: true,
   cookie: {
-    expires: Date.now() + 1000 * 60 * 60,
-    maxAge: 1000 * 60 * 60,
+    expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+    maxAge: 1000 * 60 * 60 * 24 * 7,
     httpOnly: true,
   },
 };
