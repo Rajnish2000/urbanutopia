@@ -4,6 +4,8 @@ import { ApiError } from "../../utilities/ApiError.js";
 import { ApiResponse } from "../../utilities/ApiResponse.js";
 import { asyncHandler } from "../../utilities/asyncHandler.js";
 import geocoding from "@mapbox/mapbox-sdk/services/geocoding.js";
+import { Review } from "../../models/listing/review.models.js";
+
 const geocodingClient = geocoding({ accessToken: process.env.MAP_TOKEN });
 
 // creating new Listing :
@@ -108,7 +110,7 @@ const getByIdListing = asyncHandler(async (req, res) => {
 const editByIdListing = asyncHandler(async (req, res) => {
   try {
     let listing = await Listing.findById(req.params.id);
-    if (listing.owner._id === req.user._id) {
+    if (listing.owner._id.valueOf() === req.user._id.valueOf()) {
       let geoResponse = await geocodingClient
         .forwardGeocode({
           query: req.body.location,
@@ -117,8 +119,8 @@ const editByIdListing = asyncHandler(async (req, res) => {
         .send();
       let result = await Listing.findByIdAndUpdate(req.params.id, req.body);
       if (req.file) {
-        console.log("req file: ", req.file);
-        console.log("result: ", result);
+        // console.log("req file: ", req.file);
+        // console.log("result: ", result);
         result.image.url = req.file.path;
         result.image.filename = req.file.filename;
       }
@@ -142,10 +144,8 @@ const editByIdListing = asyncHandler(async (req, res) => {
         .json(
           new ApiError(
             401,
-            err.message == ""
-              ? "You are not authorized to update this listing.😣"
-              : "Unauthorized Access Failed.😣❌😈",
-            err
+            "You are not authorized to update this listing.😣",
+            "Unauthorized Access Failed.😣❌😈"
           )
         );
     }
@@ -166,7 +166,10 @@ const editByIdListing = asyncHandler(async (req, res) => {
 const deleteByIdListing = asyncHandler(async (req, res) => {
   try {
     let listing = await Listing.findById(req.params.id);
-    if (listing.owner._id === req.user._id) {
+    if (listing.owner._id.valueOf() === req.user._id.valueOf()) {
+      listing.reviews.forEach(async (review) => {
+        await Review.findByIdAndDelete(review._id);
+      });
       const result = await Listing.findByIdAndDelete(req.params.id);
       if (result === null) {
         throw new Error("Listing Item Deletion Failed😢😢😈👹");
@@ -182,10 +185,8 @@ const deleteByIdListing = asyncHandler(async (req, res) => {
       .json(
         new ApiError(
           401,
-          err.message == ""
-            ? "You are not authorized to delete this listing.😣"
-            : "Unauthorized Access Failed.😣❌😈",
-          err
+          "You are not authorized to delete this listing.😣",
+          "Unauthorized Access Failed.😣❌😈"
         )
       );
   } catch (err) {

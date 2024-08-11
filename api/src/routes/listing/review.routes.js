@@ -9,9 +9,9 @@ import { isLoggedIn } from "../../middlewares/isLoggedIn.middleware.js";
 
 const router = Router();
 
-router.route("/create").post(isLoggedIn, createReview);
-router.route("/all").get(getallReviewOfListing);
-router.route("/:rid/update").patch(isLoggedIn, updateReviewById);
-router.route("/:rid/delete").delete(isLoggedIn, deleteReviewById);
+router.route("/:id/create").post(isLoggedIn, createReview);
+router.route("/:id/all").get(getallReviewOfListing);
+router.route("/:id/:rid/update").patch(isLoggedIn, updateReviewById);
+router.route("/:id/:rid/delete").delete(isLoggedIn, deleteReviewById);
 
 export default router;

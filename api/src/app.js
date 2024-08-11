@@ -7,7 +7,7 @@ import session from "express-session";
 import passport from "passport";
 import { Strategy } from "passport-local";
 import { User } from "./models/auth/users.models.js";
-
+import reviewRouter from "./routes/listing/review.routes.js";
 const app = express();
 
 const httpServer = createServer(app);
@@ -31,7 +31,7 @@ app.use(session(sessionInfo));
 
 // body parser: to parse body data passes through request.
 app.use(express.json());
-app.use(express.urlencoded({ extends: true }));
+app.use(express.urlencoded({ extended: true }));
 
 // passport setup:
 app.use(passport.initialize()); // initializing the passport.

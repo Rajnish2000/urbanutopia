@@ -14,13 +14,27 @@ const listingSchemaValidator = Joi.object({
 });
 
 const userSchemaValidator = Joi.object({
-  name: Joi.string().default(null),
+  name: Joi.string(),
   username: Joi.string().required(),
   email: Joi.string().required(),
   password: Joi.string().required(),
-  dob: Joi.date().default(null),
-  mobile_no: Joi.string().default(null),
+  dob: Joi.date(),
+  mobile_no: Joi.string(),
   listings: Joi.array(),
 });
 
-export { listingSchemaValidator, userSchemaValidator };
+const userUpdateSchemaValidator = Joi.object({
+  name: Joi.string(),
+  username: Joi.string().required(),
+  email: Joi.string().required(),
+  password: Joi.string(),
+  dob: Joi.date(),
+  mobile_no: Joi.string(),
+  listings: Joi.array(),
+});
+
+export {
+  listingSchemaValidator,
+  userSchemaValidator,
+  userUpdateSchemaValidator,
+};

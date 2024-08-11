@@ -8,6 +8,9 @@ import { asyncHandler } from "../../utilities/asyncHandler.js";
 const createReview = asyncHandler(async (req, res) => {
   try {
     let lisId = req.params;
+    if (!lisId) {
+      return res.status(400).json(new ApiError(400, "reviewId Not Found"));
+    }
     let listing = await Listing.findOne({ _id: lisId.id });
     if (!req.body) {
       return res.status(400).json(new ApiError(400, "Data Not Found"));
@@ -30,12 +33,18 @@ const createReview = asyncHandler(async (req, res) => {
 
 // get all review of particular listing:
 const getallReviewOfListing = asyncHandler(async (req, res) => {
-  let lisId = req.params;
-  const review = await Listing.findById(lisId.id).populate("reviews");
-  console.log(review);
-  res
-    .status(200)
-    .json(new ApiResponse(200, review, "Review Fetch Successfully.✔😂👻"));
+  try {
+    let lisId = req.params;
+    const review = await Listing.findById(lisId.id).populate("reviews");
+    console.log(review);
+    res
+      .status(200)
+      .json(new ApiResponse(200, review, "Review Fetch Successfully.✔😂👻"));
+  } catch (err) {
+    return res
+      .status(500)
+      .json(new ApiError(500, "Internal Server Error", err.errors));
+  }
 });
 
 // update review api:
@@ -47,13 +56,11 @@ const updateReviewById = asyncHandler(async (req, res) => {
       return res
         .status(400)
         .json(new ApiError(400, "Data Not Found.👻👹🎈", "No Review Found.."));
-    if (req.user._id === review.owner._id) {
+    if (req.user._id.valueOf() === review.owner._id.valueOf()) {
       if (!req.body) {
         return res.status(400).json(new ApiError(400, "Data Not Found.👻👹🎈"));
       }
-      const result = await Review.findByIdAndUpdate(rid, req.body);
-      // let listing = await Listing.findOneAndReplace({$where:});
-      // listing.reviews =
+      let result = await Review.findByIdAndUpdate(rid, req.body);
       if (!result) {
         return res
           .status(404)
@@ -70,10 +77,8 @@ const updateReviewById = asyncHandler(async (req, res) => {
         .json(
           new ApiError(
             401,
-            err.message == ""
-              ? "You are not authorized to update this review.😣"
-              : "Unauthorized Access Failed.😣❌😈",
-            err
+            "You are not authorized to update this review.😣",
+            "Unauthorized Access Failed.😣❌😈"
           )
         );
     }
@@ -90,15 +95,19 @@ const deleteReviewById = asyncHandler(async (req, res) => {
     const lisId = req.params.id;
     const rId = req.params.rid;
     let review = await Review.findById(rId);
-    if (!review)
+    if (!review) {
       return res
         .status(400)
         .json(new ApiError(400, "Data Not Found.👻👹🎈", "No Review Found.."));
-    if (req.user._id === review.owner._id) {
-      const lisResult = await Listing.findOneAndDelete({
-        $where: (reviews._id = rId),
-      });
-      const result = await Review.findByIdAndDelete(rId);
+    }
+    if (req.user._id.valueOf() === review.owner._id.valueOf()) {
+      const lisResult = await Listing.findById(lisId);
+      lisResult.reviews.splice(
+        lisResult.reviews.findIndex((e) => e._id.valueOf() == rId),
+        1
+      );
+      let result = await Review.findByIdAndDelete(rId);
+      result = await lisResult.save();
       if (!result) {
         return res
           .status(400)
@@ -111,23 +120,21 @@ const deleteReviewById = asyncHandler(async (req, res) => {
         .json(
           new ApiResponse(200, result, "Review Deleted Successfully.👻👻😜")
         );
-    } else {
-      return res
-        .status(401)
-        .json(
-          new ApiError(
-            401,
-            err.message == ""
-              ? "You are not authorized to Delete this review.😣"
-              : "Unauthorized Access Failed.😣❌😈",
-            err
-          )
-        );
     }
+    return res
+      .status(401)
+      .json(
+        new ApiError(
+          401,
+          "You are not authorized to Delete this review.😣",
+          "Unauthorized Access Failed.😣❌😈"
+        )
+      );
   } catch (err) {
+    console.error(err);
     return res
       .status(500)
-      .json(new ApiError(500, "Review Deletion Failed.😣😣🤦‍♀️❌", err));
+      .json(new ApiError(500, "Review Deletion Failed.😣😣🤦‍♀️❌", err.message));
   }
 });
 

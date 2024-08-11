@@ -11,10 +11,11 @@ import { validateListing } from "../../middlewares/validate.middlewares.js";
 import reviewRouter from "../../routes/listing/review.routes.js";
 import { isLoggedIn } from "../../middlewares/isLoggedIn.middleware.js";
 import { fileUpload } from "../../middlewares/multer.middlewares.js";
+
 const router = Router();
 
 console.log(router);
-
+router.use("/review", reviewRouter);
 router.route("/all").get(isLoggedIn, listingAll);
 router
   .route("/create")
@@ -27,6 +28,5 @@ router
 router.route("/:id/delete").delete(isLoggedIn, deleteByIdListing);
 router.route("/reset_db").get(initListingDB);
 // router.route('/review').
-router.use("/:id/review", reviewRouter);
 
 export default router;

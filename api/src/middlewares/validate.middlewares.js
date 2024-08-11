@@ -1,6 +1,7 @@
 import {
   listingSchemaValidator,
   userSchemaValidator,
+  userUpdateSchemaValidator,
 } from "../validators/schemaValidators.js";
 import { ApiError } from "../utilities/ApiError.js";
 
@@ -20,7 +21,13 @@ const validateListing = (req, res, next) => {
 };
 
 const validateUser = (req, res, next) => {
-  let validate_res = userSchemaValidator.validate(req.body);
+  console.log("request type : ", req.method);
+  let validate_res = {};
+  if (req.method === "POST") {
+    validate_res = userSchemaValidator.validate(req.body);
+  } else if (req.method === "PATCH") {
+    validate_res = userUpdateSchemaValidator.validate(req.body);
+  }
   console.log(validate_res);
   if (validate_res.error) {
     return res.send(

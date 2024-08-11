@@ -1,8 +1,9 @@
 import { User } from "../../models/auth/users.models.js";
+import { Review } from "../../models/listing/review.models.js";
 import { ApiError } from "../../utilities/ApiError.js";
 import { ApiResponse } from "../../utilities/ApiResponse.js";
 import { asyncHandler } from "../../utilities/asyncHandler.js";
-
+import { Listing } from "../../models/listing/listing.models.js";
 // create User Api:
 const createUser = asyncHandler(async (req, res) => {
   try {
@@ -61,7 +62,7 @@ const getUserById = asyncHandler(async (req, res) => {
 const updateUserById = asyncHandler(async (req, res) => {
   try {
     let uid = req.params.id;
-    if (req.user._id === uid) {
+    if (req.user._id.valueOf() === uid) {
       if (!req.body) {
         return res
           .status(400)
@@ -97,10 +98,8 @@ const updateUserById = asyncHandler(async (req, res) => {
         .json(
           new ApiError(
             401,
-            err.message == ""
-              ? "You are not authorized to update this profile.😣"
-              : "Unauthorized Access Failed.😣❌😈",
-            err
+            "You are not authorized to update this profile.😣",
+            "Unauthorized Access Failed.😣❌😈"
           )
         );
     }
@@ -116,7 +115,18 @@ const updateUserById = asyncHandler(async (req, res) => {
 const deleteUserById = asyncHandler(async (req, res) => {
   try {
     let uid = req.params.id;
-    if (req.user._id === uid) {
+    if (req.user._id.valueOf() === uid) {
+      let reviews = await Review.find({ owner: req.user });
+      reviews.forEach(async (review) => {
+        await Review.findByIdAndDelete(review._id);
+      });
+      req.user.listings.forEach(async (item) => {
+        await item.reviews.forEach(async (review) => {
+          await Review.findByIdAndDelete(review._id);
+        });
+        await Listing.findByIdAndDelete(item._id);
+      });
+      console.log(review);
       const result = await User.findByIdAndDelete(uid);
       if (!result) {
         return res
@@ -139,10 +149,8 @@ const deleteUserById = asyncHandler(async (req, res) => {
         .json(
           new ApiError(
             401,
-            err.message == ""
-              ? "You are not authorized to delete this Account.😣"
-              : "Unauthorized Access Failed.😣❌😈",
-            err
+            "You are not authorized to delete this Account.😣",
+            "Unauthorized Access Failed.😣❌😈"
           )
         );
     }
