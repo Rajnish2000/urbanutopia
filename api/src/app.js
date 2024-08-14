@@ -7,7 +7,10 @@ import session from "express-session";
 import passport from "passport";
 import { Strategy } from "passport-local";
 import { User } from "./models/auth/users.models.js";
+import healthCheckRouter from "./routes/healthcheck.routes.js";
 import MongoStore from "connect-mongo";
+import cors from "cors";
+import { nextTick } from "process";
 const app = express();
 
 const db_url = process.env.ATLAS_DB_URL;
@@ -21,13 +24,17 @@ const store = MongoStore.create({
   mongoUrl: db_url,
   touchAfter: 24 * 3600,
   crypto: {
-    secret: "secreatecodedinfo",
+    secret: process.env.SECRET,
   },
+});
+
+store.on("connect", (err) => {
+  console.error("mongodb session store error: ", err);
 });
 
 const sessionInfo = {
   store,
-  secret: "Mysecretxyzcodek",
+  secret: process.env.SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: {
@@ -43,7 +50,7 @@ app.use(session(sessionInfo));
 // body parser: to parse body data passes through request.
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(express.static("public"));
 // passport setup:
 app.use(passport.initialize()); // initializing the passport.
 app.use(passport.session());
@@ -56,11 +63,21 @@ passport.deserializeUser(User.deserializeUser());
 // setting path for static file:
 app.use(express.static("public"));
 
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+  })
+);
+
 // middleware test:
-app.use((req, res, next) => {
-  console.log("Hey! middleware tested.🤗");
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log("Hey! middleware tested.🤗");
+//   next();
+// });
+
+// test api:
+app.use("/", healthCheckRouter);
 
 // routes:
 app.use("/api/v1/listing", ListingRouter);

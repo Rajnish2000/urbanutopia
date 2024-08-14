@@ -1,9 +1,9 @@
-node_modules
-# api/public/images/*
+node_modules/
+api/public/
 
 .env
-package-lock.json
 
-/notes.txt
 
-/cloudConfig.js
+notes.txt
+
+cloudConfig.js
