@@ -2,7 +2,7 @@ import express from "express";
 import { createServer } from "http";
 import ListingRouter from "./routes/listing/listing.routes.js";
 import userRouter from "./routes/auth/users.routes.js";
-import cookieParser from "cookie-parser";
+// import cookieParser from "cookie-parser";
 import session from "express-session";
 import passport from "passport";
 import { Strategy } from "passport-local";
@@ -10,7 +10,7 @@ import { User } from "./models/auth/users.models.js";
 import healthCheckRouter from "./routes/healthcheck.routes.js";
 import MongoStore from "connect-mongo";
 import cors from "cors";
-import { nextTick } from "process";
+// import { nextTick } from "process";
 const app = express();
 
 const db_url = process.env.ATLAS_DB_URL;
