@@ -10,6 +10,8 @@ import { User } from "./models/auth/users.models.js";
 import healthCheckRouter from "./routes/healthcheck.routes.js";
 import MongoStore from "connect-mongo";
 import cors from "cors";
+import * as swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
 // import { nextTick } from "process";
 const app = express();
 
@@ -76,21 +78,28 @@ app.use(
 //   next();
 // });
 
+//swagger ui api:
+
+const swaggerDocument = YAML.load("./docs/swagger.yaml");
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument, {
+    explorer: true,
+    tagSorter: (a, b) => {
+      const order = ["Health", "Users", "Listing", "Review"];
+      return order.indexOf(a) - order.indexOf(b);
+    },
+    operationsSorter: "alpha",
+  })
+);
+
 // test api:
 app.use("/", healthCheckRouter);
 
 // routes:
 app.use("/api/v1/listing", ListingRouter);
 app.use("/api/v1/user", userRouter);
-
-// app.post("/login", (req, res) => {
-//   let data = req.body;
-//   // req.session.username = req.body.username;
-//   // res.cookie("username", data.username, {
-//   //   signed: true,
-//   // });
-
-//   res.send("You Logged In. Successfully");
-// });
 
 export { httpServer };
