@@ -45,7 +45,6 @@ paths:
     post:
       tags:
         - Auth
-    post:
       summary: Register a new user
       description: Creates a new user account.
       requestBody:
@@ -72,7 +71,6 @@ paths:
     post:
       tags:
         - Auth
-    post:
       summary: Login user
       description: Authenticates a user and returns user data.
       requestBody:
@@ -107,73 +105,8 @@ paths:
         - Auth
       summary: Get user by ID
       description: Returns user details for the given user ID.
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: User details
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserResponse"
-        "400":
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-    put:
-      tags:
-        - Auth
-      summary: Update user by ID
-      description: Updates user details for the given user ID. Only the user can update their own profile.
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserUpdate"
-      responses:
-        "200":
-          description: User updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserResponse"
-        "400":
-          description: Update failed
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
-          description: Server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-    delete:
-      tags:
-        - Auth
-    get:
-      summary: Get user by ID
-      description: Returns user details for the given user ID.
+      security:
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -194,9 +127,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /api/v1/user/{id}/edit:
     put:
+      tags:
+        - Auth
       summary: Update user by ID
       description: Updates user details for the given user ID. Only the user can update their own profile.
+      security:
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -235,9 +173,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /api/v1/user/{id}/delete:
     delete:
+      tags:
+        - Auth
       summary: Delete user by ID
       description: Deletes the user account for the given user ID. Only the user can delete their own account.
+      security:
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -274,9 +217,10 @@ paths:
     get:
       tags:
         - Auth
-    get:
       summary: Logout user
       description: Logs out the current user.
+      security:
+        - cookieAuth: []
       responses:
         "200":
           description: User logged out successfully
@@ -299,11 +243,10 @@ paths:
     get:
       tags:
         - Listing
-    get:
       summary: Get all listings
       description: Returns all listings. Requires authentication.
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         "200":
           description: List of listings
@@ -324,11 +267,10 @@ paths:
     post:
       tags:
         - Listing
-    post:
       summary: Create a new listing
       description: Creates a new listing. Requires authentication, validation, and file upload.
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       requestBody:
         required: true
         content:
@@ -359,9 +301,10 @@ paths:
     get:
       tags:
         - Listing
-    get:
       summary: Get listing by ID
       description: Returns details of a listing by its ID.
+      security:
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -392,11 +335,10 @@ paths:
     patch:
       tags:
         - Listing
-    patch:
       summary: Edit listing by ID
       description: Updates a listing by its ID. Only the owner can edit. Requires authentication, validation, and file upload.
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -435,15 +377,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /api/v1/listing/delete:
+  /api/v1/listing/{id}/delete:
     delete:
       tags:
         - Listing
-    delete:
       summary: Delete listing by ID
       description: Deletes a listing by its ID. Only the owner can delete. Requires authentication.
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -480,11 +421,10 @@ paths:
     get:
       tags:
         - Listing
-    get:
       summary: Reset listings database
       description: Resets and initializes the listings database with sample data. Requires authentication.
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         "200":
           description: Listings initialized successfully
@@ -503,15 +443,14 @@ paths:
   # Review Routes
   # =========================
 
-  /api/v1/listing/review/{id}/review/create:
+  /api/v1/listing/review/{id}/create:
     post:
       tags:
         - Review
-    post:
       summary: Create a review for a listing
       description: Creates a review for the specified listing. Requires authentication.
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -544,13 +483,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /api/v1/listing/review/{id}/review/all:
+  /api/v1/listing/review/{id}/all:
     get:
       tags:
         - Review
-    get:
       summary: Get all reviews for a listing
       description: Returns all reviews for the specified listing.
+      security:
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -571,15 +511,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /api/v1/listing/review/{id}/review/{rid}/update:
+  /api/v1/listing/review/{id}/{rid}/update:
     patch:
       tags:
         - Review
-    patch:
       summary: Update a review for a listing
       description: Updates a review by review ID for the specified listing. Only the review owner can update. Requires authentication.
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -629,15 +568,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /api/v1/listing/review/{id}/review/{rid}/delete:
+  /api/v1/listing/review/{id}/{rid}/delete:
     delete:
       tags:
         - Review
-    delete:
       summary: Delete a review for a listing
       description: Deletes a review by review ID for the specified listing. Only the review owner can delete. Requires authentication.
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -676,6 +614,11 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
 
 components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: connect.sid
   schemas:
     UserCreate:
       type: object
@@ -690,7 +633,6 @@ components:
           type: string
         password:
           type: string
-
     UserLogin:
       type: object
       required:
@@ -701,7 +643,6 @@ components:
           type: string
         password:
           type: string
-
     UserUpdate:
       type: object
       properties:
@@ -716,7 +657,6 @@ components:
               type: string
             filename:
               type: string
-
     UserResponse:
       type: object
       properties:
@@ -741,7 +681,6 @@ components:
                   type: string
         message:
           type: string
-
     LogoutResponse:
       type: object
       properties:
@@ -751,7 +690,6 @@ components:
         message:
           type: string
           example: User Logout Successfully.
-
     ErrorResponse:
       type: object
       properties:
@@ -798,7 +736,6 @@ components:
           type: array
           items:
             type: string
-
     ListingCreate:
       type: object
       required:
@@ -815,7 +752,6 @@ components:
           type: number
         location:
           type: string
-
     ListingUpdate:
       type: object
       properties:
@@ -834,7 +770,6 @@ components:
               type: string
             filename:
               type: string
-
     ListingResponse:
       type: object
       properties:
@@ -860,7 +795,6 @@ components:
           type: integer
         comment:
           type: string
-
     ReviewCreate:
       type: object
       required:
@@ -871,7 +805,6 @@ components:
           type: integer
         comment:
           type: string
-
     ReviewUpdate:
       type: object
       properties:
@@ -879,7 +812,6 @@ components:
           type: integer
         comment:
           type: string
-
     ReviewResponse:
       type: object
       properties:
@@ -890,7 +822,6 @@ components:
           $ref: "#/components/schemas/Review"
         message:
           type: string
-
     ReviewListResponse:
       type: object
       properties:
